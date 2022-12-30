@@ -12,6 +12,7 @@ export default class {
     const iconEye = document.querySelectorAll(`div[data-testid="icon-eye"]`)
     if (iconEye) iconEye.forEach(icon => {
       icon.addEventListener('click', () => this.handleClickIconEye(icon))
+      //TODO: add data-bill-url parameter to icon DOM eventListener
     })
     new Logout({ document, localStorage, onNavigate })
   }
@@ -22,6 +23,7 @@ export default class {
 
   handleClickIconEye = (icon) => {
     const billUrl = icon.getAttribute("data-bill-url")
+    console.log(icon);
     const imgWidth = Math.floor($('#modaleFile').width() * 0.5)
     $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`)
     $('#modaleFile').modal('show')
@@ -34,6 +36,11 @@ export default class {
       .list()
       .then(snapshot => {
         const bills = snapshot
+          .sort((a, b) => {
+              const da = new Date(a.date);
+              const db = new Date(b.date);
+              return da - db;
+          })
           .map(doc => {
             try {
               return {
@@ -52,7 +59,7 @@ export default class {
               }
             }
           })
-          console.log('length', bills.length)
+          //console.log('length', bills.length)
         return bills
       })
     }
