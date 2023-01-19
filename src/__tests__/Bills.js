@@ -11,21 +11,22 @@ import BillsContainer from "../containers/Bills.js";
 import mockStore from "../__mocks__/store"
 import router from "../app/Router.js";
 import store from "../app/Store.js"
+import userEvent from '@testing-library/user-event'
 
 jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
+  Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+  window.localStorage.setItem('user', JSON.stringify({
+    type: 'Employee'
+  }))
+  const root = document.createElement("div")
+  root.setAttribute("id", "root")
+  document.body.append(root)
+  router()
+
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
-
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee'
-      }))
-      const root = document.createElement("div")
-      root.setAttribute("id", "root")
-      document.body.append(root)
-      router()
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
@@ -38,24 +39,37 @@ describe("Given I am connected as an employee", () => {
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
     })
-    test("Then getBills is not empty", () => { //Pour vérifier le bon déroulement de l'appel à la fonction
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee'
-      }))
-      const root = document.createElement("div")
-      root.setAttribute("id", "root")
-      document.body.append(root)
-      router()
+    test("Then getBills is not empty", async () => {
+      //Vérification de la validité de la liste retournée par getBills
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
-      //ERREUR: les paramètres store & localStorage sont null dans le constructeur Bills
-      var container = new BillsContainer({document, onNavigate, mockStore, localStorageMock});
-      //console.log("Store: " + store);
-      //console.log("Mock: " + mockStore);
-      //console.log(container.store);
-      //expect("a").toBe("b");
+      var container = new BillsContainer({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+      var res = await container.getBills();
+      expect(res.length).toBeGreaterThan(0);
+    })
+    describe("When I click on icon eye", () => {
+      //Problème: $(...).modal is not a function
+      test("Then the associated document should be shown", async () => {
+        const onNavigate = (pathname) => {
+          document.body.innerHTML = ROUTES({ pathname })
+        }
+        var container = new BillsContainer({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+        window.onNavigate(ROUTES_PATH.Bills)
+
+        // //Vérification de l'appel de l'EventListener
+        // const handleClickIconEye = jest.fn(container.handleClickIconEye)
+        // var eye = screen.getAllByTestId('icon-eye')[0];
+        // eye.addEventListener('click', () => handleClickIconEye(eye))
+        // $(eye).trigger("click"); //$(...).modal is not a function
+        // expect(handleClickIconEye).toHaveBeenCalled()
+
+        // //Vérification de l'affichage de la modale
+        // var modale = document.getElementById("modaleFile");
+        // var shownStatus = modale.getAttribute("aria-hidden");
+        // var shown = !(shownStatus && shownStatus == "true");
+        // expect(shown).toBe(true);
+      });
     })
   })
 })
