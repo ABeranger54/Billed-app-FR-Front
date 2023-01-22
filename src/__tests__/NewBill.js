@@ -15,7 +15,6 @@ import {fireEvent, screen, waitFor} from "@testing-library/dom"
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
     const html = NewBillUI();
-    document.body.innerHTML = html;
 
     Object.defineProperty(window, 'localStorage', { value: localStorageMock })
     window.localStorage.setItem('user', JSON.stringify({
@@ -27,7 +26,9 @@ describe("Given I am connected as an employee", () => {
     }
 
     describe("When I submit the new bill", () => {
+      //Vérification du bon envoi de la note de frais, l'objet NewBill doit contenir toutes les informations requises
       test("Then new bill should be found in the bills list", () => {
+        document.body.innerHTML = html;
         var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
 
         var name = document.querySelector(`input[data-testid="expense-name"]`);
@@ -40,38 +41,38 @@ describe("Given I am connected as an employee", () => {
         expect(container.formData.has("email")).toBe(true);
         expect(container.formData.get("name")).toBe(name.value);
         expect(container.formData.get("amount")).toBe(amount.value);
-
       })
-      //Problème: erreur undefined sur addEventListener dès que onNavigate est appelé
-      test("Then I am redirected to Bills page", () => {
-        // var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
-        // var sendButton = document.getElementById("btn-send-bill");
-        // const handleSubmit = jest.fn((e) => container.handleSubmit)
-        // sendButton.addEventListener("click", handleSubmit)
-        // fireEvent.click(sendButton);
-        // expect(handleSubmit).toHaveBeenCalled();
-      });
+
+      //Vérification de la redirection vers la page Bills quand un clique sur le bouton d'envoi est effectué
+      // test("Then I am redirected to Bills page", () => {
+      //   document.body.innerHTML = html;
+      //   var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+      //   var sendButton = document.getElementById("btn-send-bill");
+      //   const handleSubmit = jest.fn((e) => container.handleSubmit)
+      //   sendButton.addEventListener("click", handleSubmit)
+      //   fireEvent.click(sendButton);
+      //   expect(handleSubmit).toHaveBeenCalled();
+      // });
     })
     describe("When I upload an image", () =>{
-      //Problème: erreur undefined sur addEventListener dès que onNavigate est appelé
+      //Vérification de la validité d'une image (.png), le fichier doit être accepté
       test("Then file picker accept .jpg, .jpeg & .png extensions", () => {
-        // var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
-        // var input = document.querySelector(`input[data-testid="file"]`);
-
-        // //Vérification de la validité d'une image (.png), le fichier doit être accepté
-        // var f = new File(["image"], "image.png", {type: "image/png", lastModified: new Date("December 17, 2022 03:24:00")});
-        // userEvent.upload(input, f);
-        // expect(container.formData.has("file")).toBe(true);
+        document.body.innerHTML = html;
+        var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+        var input = document.querySelector(`input[data-testid="file"]`);
+        var f = new File(["image"], "image.png", {type: "image/png", lastModified: new Date("December 17, 2022 03:24:00")});
+        userEvent.upload(input, f);
+        expect(container.formData.has("file")).toBe(true);
       })
-      //Problème: erreur undefined sur addEventListener dès que onNavigate est appelé
-      test("Then file picker reject other extensions", () => {
-        // var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
-        // var input = document.querySelector(`input[data-testid="file"]`);
 
-        // //Vérification de la validité d'un document (.pdf), le fichier doit être refusé
-        // var f = new File(["doc"], "doc.pdf", {type: "document/pdf", lastModified: new Date("December 17, 2022 03:24:00")});
-        // userEvent.upload(input, f);
-        // expect(container.formData.has("file")).toBe(false);
+      //Vérification de la validité d'un document (.pdf), le fichier doit être refusé
+      test("Then file picker reject other extensions", () => {
+        document.body.innerHTML = html;
+        var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+        var input = document.querySelector(`input[data-testid="file"]`);
+        var f = new File(["doc"], "doc.pdf", {type: "document/pdf", lastModified: new Date("December 17, 2022 03:24:00")});
+        userEvent.upload(input, f);
+        expect(container.formData.has("file")).toBe(false);
       })
     })
   })

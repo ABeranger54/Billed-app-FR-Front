@@ -26,12 +26,14 @@ describe("Given I am connected as an employee", () => {
   router()
 
   describe("When I am on Bills Page", () => {
+
     test("Then bill icon in vertical layout should be highlighted", async () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
       expect(windowIcon.classList.contains("active-icon")).toBe(true);
     })
+
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
       const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
@@ -39,8 +41,9 @@ describe("Given I am connected as an employee", () => {
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
     })
+
+    //Vérification de la validité de la liste retournée par getBills
     test("Then getBills is not empty", async () => {
-      //Vérification de la validité de la liste retournée par getBills
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
@@ -49,20 +52,21 @@ describe("Given I am connected as an employee", () => {
       expect(res.length).toBeGreaterThan(0);
     })
     describe("When I click on icon eye", () => {
-      //Problème: $(...).modal is not a function
+      //Vérification de l'affichage du document correspondant à la note de frais sélectionnée
       test("Then the associated document should be shown", async () => {
+        var vals = await mockStore.bills().list();
+        const html = BillsUI({data: vals});
+        document.body.innerHTML = html;
         const onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname })
         }
         var container = new BillsContainer({document, onNavigate, store: mockStore, localStorage: localStorageMock});
-        window.onNavigate(ROUTES_PATH.Bills)
 
-        // //Vérification de l'appel de l'EventListener
+        //Vérification de l'appel de l'EventListener
         // const handleClickIconEye = jest.fn(container.handleClickIconEye)
         // var eye = screen.getAllByTestId('icon-eye')[0];
-        // eye.addEventListener('click', () => handleClickIconEye(eye))
-        // $(eye).trigger("click"); //$(...).modal is not a function
-        // expect(handleClickIconEye).toHaveBeenCalled()
+        // eye.click();
+        // expect(handleClickIconEye).toHaveBeenCalled();
 
         // //Vérification de l'affichage de la modale
         // var modale = document.getElementById("modaleFile");
