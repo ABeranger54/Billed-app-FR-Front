@@ -25,35 +25,6 @@ describe("Given I am connected as an employee", () => {
       document.body.innerHTML = ROUTES({ pathname })
     }
 
-    describe("When I submit the new bill", () => {
-      //Vérification du bon envoi de la note de frais, l'objet NewBill doit contenir toutes les informations requises
-      test("Then new bill should be found in the bills list", () => {
-        document.body.innerHTML = html;
-        var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
-
-        var name = document.querySelector(`input[data-testid="expense-name"]`);
-        name.value = "Hotel";
-        var amount = document.querySelector(`input[data-testid="amount"]`);
-        amount.value = "130";
-
-        var sendButton = document.getElementById("btn-send-bill");
-        fireEvent.click(sendButton);
-        expect(container.formData.has("email")).toBe(true);
-        expect(container.formData.get("name")).toBe(name.value);
-        expect(container.formData.get("amount")).toBe(amount.value);
-      })
-
-      //Vérification de la redirection vers la page Bills quand un clique sur le bouton d'envoi est effectué
-      // test("Then I am redirected to Bills page", () => {
-      //   document.body.innerHTML = html;
-      //   var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
-      //   var sendButton = document.getElementById("btn-send-bill");
-      //   const handleSubmit = jest.fn((e) => container.handleSubmit)
-      //   sendButton.addEventListener("click", handleSubmit)
-      //   fireEvent.click(sendButton);
-      //   expect(handleSubmit).toHaveBeenCalled();
-      // });
-    })
     describe("When I upload an image", () =>{
       //Vérification de la validité d'une image (.png), le fichier doit être accepté
       test("Then file picker accept .jpg, .jpeg & .png extensions", () => {
@@ -74,6 +45,53 @@ describe("Given I am connected as an employee", () => {
         userEvent.upload(input, f);
         expect(container.formData.has("file")).toBe(false);
       })
+    })
+
+    //Test d'intégration POST new bill
+    describe("When I submit the new bill", () => {
+      //Vérification du bon envoi de la note de frais, l'objet NewBill doit contenir toutes les informations requises
+      test("Then new bill should be found in the bills list", () => {
+        document.body.innerHTML = html;
+        var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+
+        var type = document.querySelector(`select[data-testid="expense-type"]`);
+        type.value = "Transports";
+        var name = document.querySelector(`input[data-testid="expense-name"]`);
+        name.value = "Hotel";
+        var amount = document.querySelector(`input[data-testid="amount"]`);
+        amount.value = "130";
+        var date = document.querySelector(`input[data-testid="datepicker"]`);
+        date.value = new Date(2018, 8, 22);
+        var vat = document.querySelector(`input[data-testid="vat"]`);
+        vat.value = "70";
+        var pct = document.querySelector(`input[data-testid="pct"]`);
+        pct.value = "20";
+
+        var sendButton = document.getElementById("btn-send-bill");
+        fireEvent.click(sendButton);
+        //expect(container.fileUrl).toBe("https://localhost:3456/images/test.jpg");
+        //expect(container.billId).toBe("1234");
+        expect(container.formData.has("email")).toBe(true);
+        expect(container.formData.get("type")).toBe(type.value);
+        expect(container.formData.get("name")).toBe(name.value);
+        expect(container.formData.get("amount")).toBe(amount.value);
+        expect(container.formData.get("date")).toBe(date.value);
+        expect(container.formData.get("vat")).toBe(vat.value);
+        expect(container.formData.get("pct")).toBe(pct.value);
+        //expect(container.formData.get("fileName")).toBe(container.fileName);
+        expect(container.formData.get("status")).toBe("pending");
+      })
+
+      //Vérification de la redirection vers la page Bills quand un clique sur le bouton d'envoi est effectué
+      test("Then I am redirected to Bills page", () => {
+        document.body.innerHTML = html;
+        var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
+        var sendButton = document.getElementById("btn-send-bill");
+        const handleSubmit = jest.fn((e) => container.handleSubmit);
+        sendButton.addEventListener("click", handleSubmit)
+        fireEvent.click(sendButton);
+        expect(handleSubmit).toHaveBeenCalled();
+      });
     })
   })
 })
