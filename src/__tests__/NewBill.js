@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-import store from "../app/Store.js"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes"
@@ -9,8 +8,6 @@ import {localStorageMock} from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store"
 import userEvent from '@testing-library/user-event'
 import {fireEvent, screen, waitFor} from "@testing-library/dom"
-
-//jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -50,7 +47,7 @@ describe("Given I am connected as an employee", () => {
     //Test d'intégration POST new bill
     describe("When I submit the new bill", () => {
       //Vérification du bon envoi de la note de frais, l'objet NewBill doit contenir toutes les informations requises
-      test("Then new bill should be found in the bills list", () => {
+      test("Then new bill should be found in the bills list", async() => {
         document.body.innerHTML = html;
         var container = new NewBill({document, onNavigate, store: mockStore, localStorage: localStorageMock});
 
@@ -68,9 +65,10 @@ describe("Given I am connected as an employee", () => {
         pct.value = "20";
 
         var sendButton = document.getElementById("btn-send-bill");
-        fireEvent.click(sendButton);
-        //expect(container.fileUrl).toBe("https://localhost:3456/images/test.jpg");
-        //expect(container.billId).toBe("1234");
+        await fireEvent.click(sendButton);
+
+        expect(container.billId).toBe("1234");
+        expect(container.fileUrl).toBe("https://localhost:3456/images/test.jpg");
         expect(container.formData.has("email")).toBe(true);
         expect(container.formData.get("type")).toBe(type.value);
         expect(container.formData.get("name")).toBe(name.value);
@@ -78,7 +76,6 @@ describe("Given I am connected as an employee", () => {
         expect(container.formData.get("date")).toBe(date.value);
         expect(container.formData.get("vat")).toBe(vat.value);
         expect(container.formData.get("pct")).toBe(pct.value);
-        //expect(container.formData.get("fileName")).toBe(container.fileName);
         expect(container.formData.get("status")).toBe("pending");
       })
 

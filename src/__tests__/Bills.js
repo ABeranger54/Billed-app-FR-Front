@@ -10,8 +10,6 @@ import {localStorageMock} from "../__mocks__/localStorage.js";
 import BillsContainer from "../containers/Bills.js";
 import mockStore from "../__mocks__/store"
 import router from "../app/Router.js";
-import store from "../app/Store.js"
-import userEvent from '@testing-library/user-event'
 
 jest.mock("../app/store", () => mockStore)
 
@@ -45,17 +43,17 @@ describe("Given I am connected as an employee", () => {
         }
         var container = new BillsContainer({document, onNavigate, store: mockStore, localStorage: localStorageMock});
 
-        //Vérification de l'appel de l'EventListener
-        // const handleClickIconEye = jest.fn(container.handleClickIconEye)
-        // var eye = screen.getAllByTestId('icon-eye')[0];
-        // eye.click();
-        // expect(handleClickIconEye).toHaveBeenCalled();
+        //Le container n'existe pas par défaut
+        var doc = container.document.querySelector(".bill-proof-container");
+        expect(doc).toBe(null);
 
-        // //Vérification de l'affichage de la modale
-        // var modale = document.getElementById("modaleFile");
-        // var shownStatus = modale.getAttribute("aria-hidden");
-        // var shown = !(shownStatus && shownStatus == "true");
-        // expect(shown).toBe(true);
+        $.fn.modal = jest.fn();
+        var eye = screen.getAllByTestId('icon-eye')[0];
+        eye.click();
+
+        //Le container doit exister
+        doc = container.document.querySelector(".bill-proof-container");
+        expect(doc).toBeTruthy();
       });
     })
 

@@ -58,7 +58,6 @@ export default class {
               }
             }
           })
-          //console.log('length', bills)
         return bills
       })
     }
